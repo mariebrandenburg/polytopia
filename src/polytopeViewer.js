@@ -1,4 +1,5 @@
 'use strict'
+let plane;
 
 function createData(data) {
     let i = 0;
@@ -19,17 +20,13 @@ function createData(data) {
         }
         return {id: i++,
 				vertices: vertices, 
-				color: data.colors[i] ? data.colors[i] : 0x156763}
+				color: data.colors[i] ? data.colors[i] : 0x5b4c88 }
     }); 
     return data;
 }; 
 
-function isMobileDevice() {
-    return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
-};
 
-
-let PolytopeViewer = function (container) {
+let PolytopeViewer = function (container,mobile) {
     let self = this;
     let objectHoverCallback, objectClickCallback;
     let facetGeometry, facetMesh, facetTable;
@@ -37,7 +34,7 @@ let PolytopeViewer = function (container) {
     let mouse = new THREE.Vector2();
     let camera, renderer, scene;
     let vertexObjects, edgeObjects, facetObjects;
-    
+    let hasMouseMoved = false;
     
     //--Design Area--//
     self.selection = true;
@@ -45,21 +42,20 @@ let PolytopeViewer = function (container) {
     self.highlightColor = 0xdddddd;
     self.selectionColor = 0xff0000;
     let markColor = 0xe8676a;
-    let backgroundColor = 0x6e9692;
+    let backgroundColor = 0xffffff;
     let lightsColor = 0xffffff;
     let vertexColor = 0x999999;
     let edgeColor = 0x999999;
-    self.facetColor = 0x156763;
+    //self.facetColor = 0x156763; //facet color is defined above in createData
 
-    
 
     function init() {
         scene = new THREE.Scene();
         scene.background = new THREE.Color( backgroundColor );
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
 
         renderer = new THREE.WebGLRenderer({antialias: true});
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
 
         camera.position.z = 40;
@@ -99,8 +95,10 @@ let PolytopeViewer = function (container) {
 
         var light = new THREE.AmbientLight( lightsColor, 0.6 );
         scene.add( light );
-
-        document.addEventListener('mousemove', onDocumentMouseMove, false);
+        
+        if(!mobile) {
+			document.addEventListener('mousemove', onDocumentMouseMove, false)
+		};
         document.addEventListener('mousedown', selectObject, false);
         window.addEventListener( 'resize', onWindowResize, false );
     }
@@ -232,8 +230,8 @@ let PolytopeViewer = function (container) {
 
     //--Selection--//
     function selectObject(event) {
-        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        mouse.y = -( event.clientY / window.innerHeight ) * 2 + 1;
+        mouse.x = ( event.clientX / container.clientWidth ) * 2 - 1;
+        mouse.y = -( event.clientY / container.clientHeight ) * 2 + 1;
         let object = getHoveredObject();
         if(object){
             if(object.active && object.selected && self.selection) {
@@ -255,8 +253,9 @@ let PolytopeViewer = function (container) {
 
     //--Hovering--//
 	function onDocumentMouseMove(event) {
-        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        mouse.y = -( event.clientY / window.innerHeight ) * 2 + 1;
+		hasMouseMoved = true;
+        mouse.x = ( event.clientX / container.clientWidth ) * 2 - 1;
+        mouse.y = -( event.clientY / container.clientHeight ) * 2 + 1;
         updateObjectHover();
 	}
 	
@@ -290,16 +289,17 @@ let PolytopeViewer = function (container) {
 
 
     function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.aspect = container.clientWidth / container.clientHeight;
         camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize(container.clientWidth, container.clientHeight);
     }
 
     function animate() {
         if (self.rotate && self.polytope) {
             self.polytope.rotation.x += 0.0015;
             self.polytope.rotation.y += 0.001;
-            updateObjectHover();
+            if (hasMouseMoved) {updateObjectHover()};
+
         }
         render();
         requestAnimationFrame(animate);
@@ -370,11 +370,7 @@ let PolytopeViewer = function (container) {
         }
 
         facetTable = makeFacetTable(facetGeometry);
-        console.log(facetTable)
-        for(let i=0;i<facetTable.length; i++) {
-			console.log(facetTable[i][0]);
-			console.log(getFacetAbstract(facetTable[i][0],facets))
-	}
+
         facetObjects = [];
         for(let i=0;i<facetTable.length;i++) {
             facetObjects.push(

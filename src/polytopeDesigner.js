@@ -67,10 +67,11 @@ function savePolytope() {
 
 
 
-function initViewer(data) {
+function initViewer(data, mobile) {
 	rawData = Object.assign({},data);
     let coordinates = createData(data);
-    let viewer = new PolytopeViewer(container);
+    container = document.getElementById("viewer");
+    let viewer = new PolytopeViewer(container,mobile);
     v = viewer;
     viewer.rotate=true;
 
@@ -92,6 +93,7 @@ function initViewer(data) {
     
     viewer.onObjectClick(function(object) {
         object.color = pickedColor
+        object.defaultColor();
     });
     
     
@@ -100,16 +102,12 @@ function initViewer(data) {
 
 }
 
-function createViewer() {
-    //create viewer
-    container = document.createElement('div');
-    document.body.appendChild(container);
+
+function createViewer(id,mobile) {
     $.ajax({
-        //url: "http://poly.mathematik.de/src/json/data_cube.json"
-        //url: "http://localhost:8000/src/json/dodeca.json",
-        url: "src/json/Polyhedron_9.json",
+        url: "src/json/Polyhedron_"+id+".json",
         dataType: 'json',
         error: function(jqXHR, textStatus, errorThrown){alert(errorThrown)}  
-    }).done(initViewer);
+    }).done(function ( data ) { initViewer(data,mobile) } );
 }
 

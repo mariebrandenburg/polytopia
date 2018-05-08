@@ -4,9 +4,12 @@
 		<meta charset=utf-8>
 		<title>Polytopia</title>
 		<style>
-			body { margin: 0; }
+			body { margin: 0; background-color: #eeffee}
 			canvas { width: 100%; height: 100% }
-            #buttons, #colorpicker {position: fixed; right: 0;}
+            #colorpicker {position: fixed; right: 0;}
+            #viewer {height: 800px; width: 50%;}
+            #buttons {height: 10px; width: 50%}
+            #colorpicker {top: 0;}
 		</style>
                 <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
         <script src="src/threejs/three.js"></script>
@@ -16,31 +19,36 @@
         <script src="src/polytopeViewer.js"></script>
         <script src="src/polytopeDesigner.js"></script>
 	</head>
-	<body style="background-color:#6e9692;">
-        <script type="text/javascript">
-                createViewer();
+	<body>
+		<div id="viewer">
+		</div>
+		
+		<script type="text/javascript">
+                //createViewer(polytopeId,isMobileDevice)
+                createViewer(4,false);
                 $(document).ready(updatePickedColor);
                 $(document).ready( function() {
 					$.farbtastic('#colorpicker').setColor(pickedColor.replace('0x','#'))
                 });
 
-        </script>
-
-
-        <div id="buttons" style="bottom: 0">
-			<button type="button" id="vertexButton" onclick="vertexVisible()">Vertices</button>  </br> </br>
-			<button type="button" id="edgeButton" onclick="edgeVisible()">Edges</button>  </br> </br>
-			<button type="button" id="facetButton" onclick="facetVisible()">Faces</button>  </br> </br>
-		</div>
-    
-        <div id="buttons" style="top: 10px; left:10px">
-			<button type="button" id="saveButton" onclick="savePolytope()">Save</button>  </br> </br>
-			<button type="button" id="resetButton" onclick="resetPolytope()">Reset</button>  </br> </br>
-		</div>
+		</script>
 		
-		        <div id="colorpicker" style="top: 0"></div> 
-        <script type="text/javascript" src="src/farbtastic/farbtastic.js"></script>
-        <link rel="stylesheet" href="src/farbtastic/farbtastic.css" type="text/css" />
+		<div id = "buttons">
+				<button type="button" id="saveButton" onclick="savePolytope()">Save</button>  
+				<button type="button" id="resetButton" onclick="resetPolytope()">Reset</button> 
+				<button type="button" id="vertexButton" onclick="vertexVisible()">Vertices</button>    
+				<button type="button" id="edgeButton" onclick="edgeVisible()">Edges</button>
+				<button type="button" id="facetButton" onclick="facetVisible()">Faces</button>
+		</div>
+       
+
+
+		
+			<div id="colorpicker"></div> 
+			<script type="text/javascript" src="src/farbtastic/farbtastic.js"></script>
+			<link rel="stylesheet" href="src/farbtastic/farbtastic.css" type="text/css" />
+
+
 	</body>
 	
 
