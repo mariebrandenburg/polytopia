@@ -73,7 +73,7 @@ function initViewer(data, mobile) {
     container = document.getElementById("viewer");
     let viewer = new PolytopeViewer(container,mobile);
     v = viewer;
-    viewer.rotate=true;
+    viewer.rotate=false;
 
     //add polytope to viewer
     viewer.setPolytope(coordinates.vertices, coordinates.edges, coordinates.facets);

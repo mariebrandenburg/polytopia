@@ -6,16 +6,15 @@
 		<style>
 			body { margin: 0; background-color: #eeffee}
 			canvas { width: 100%; height: 100% }
-            #colorpicker {position: fixed; right: 0;}
+            #colorpicker {position: fixed; right: 0; top: 0;}
             #viewer {height: 800px; width: 50%;}
-            #buttons {height: 10px; width: 50%}
-            #colorpicker {top: 0;}
 		</style>
                 <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
         <script src="src/threejs/three.js"></script>
         <script src="src/threejs/QuickHull.js"></script>
         <script src="src/threejs/ConvexGeometry.js"></script>
         <script src="src/threejs/OrbitControls.js"></script>
+        <script src="src/threejs/ObjectControls.js"></script>
         <script src="src/polytopeViewer.js"></script>
         <script src="src/polytopeDesigner.js"></script>
 	</head>
@@ -25,7 +24,7 @@
 		
 		<script type="text/javascript">
                 //createViewer(polytopeId,isMobileDevice)
-                createViewer(4,false);
+                createViewer(9,false);
                 $(document).ready(updatePickedColor);
                 $(document).ready( function() {
 					$.farbtastic('#colorpicker').setColor(pickedColor.replace('0x','#'))

@@ -32,9 +32,11 @@ let PolytopeViewer = function (container,mobile) {
     let facetGeometry, facetMesh, facetTable;
     let lastHoveredObject;
     let mouse = new THREE.Vector2();
-    let camera, renderer, scene;
+    let camera, camera2, renderer, scene, scene2;
     let vertexObjects, edgeObjects, facetObjects;
     let hasMouseMoved = false;
+    let objectControls;
+    self.polytope;
     
     //--Design Area--//
     self.selection = true;
@@ -52,22 +54,37 @@ let PolytopeViewer = function (container,mobile) {
     function init() {
         scene = new THREE.Scene();
         scene.background = new THREE.Color( backgroundColor );
+        scene2 = new THREE.Scene();
         camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+		camera2 = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+		
+		var geometry = new THREE.BoxGeometry( 40, 40, 10);
+		var material = new THREE.MeshBasicMaterial( {color: 0xffff00, side: THREE.DoubleSide} );
+		var plane = new THREE.Mesh( geometry, material );
+		plane.position.set(0,-15,0);
+		//plane.setRotationFromAxisAngle(new THREE.Vector3(0,1,0), 3);
+		plane.setRotationFromAxisAngle(new THREE.Vector3(0,0,1), 3/2);
+		plane.setRotationFromAxisAngle(new THREE.Vector3(1,0,0), 2);
+		scene.add( plane );
+		
 
         renderer = new THREE.WebGLRenderer({antialias: true});
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
 
         camera.position.z = 40;
-        camera.position.x = -25;
-        camera.position.y = 20;
+        camera.position.x = 0; //-25
+        camera.position.y = 0; //20
+        camera2.position.set(0,0,40);
 
 		let controls = new THREE.OrbitControls( camera, renderer.domElement );
-		controls.addEventListener( 'change', render ); // remove when using animation loop
+		//controls.addEventListener( 'change', render ); // remove when using animation loop
 	    // enable animation loop when using damping or autorotation
         //controls.enableDamping = true;
 		//controls.dampingFactor = 0.001;
-		controls.enableZoom = true;
+		//controls.enableZoom = true;
+		
+		
 
         var light = new THREE.DirectionalLight( lightsColor, 0.45 );
 		light.position.set( 0, 0, -1 );
@@ -95,6 +112,8 @@ let PolytopeViewer = function (container,mobile) {
 
         var light = new THREE.AmbientLight( lightsColor, 0.6 );
         scene.add( light );
+        
+        
         
         if(!mobile) {
 			document.addEventListener('mousemove', onDocumentMouseMove, false)
@@ -306,7 +325,12 @@ let PolytopeViewer = function (container,mobile) {
     }
 
     function render() {
+		renderer.autoClear = false;
+		renderer.clear();
 		renderer.render( scene, camera );
+		renderer.clearDepth();
+		renderer.render( scene2, camera2 );
+		
     }
 
     //creates a 3d-polytope
@@ -419,6 +443,12 @@ let PolytopeViewer = function (container,mobile) {
         self.edges = edgeObjects;
         self.camera = camera;
         
+        //objectControls = new THREE.ObjectControls( camera, renderer.domElement, self.polytope);
+        //objectControls .setDistance(8, 200); // set min - max distance for zoom
+		//objectControls .setZoomSpeed(2); // set zoom speed
+		//objectControls .setRotationSpeed(4);
+
+        
     };
 
     init();
@@ -444,4 +474,3 @@ let PolytopeViewer = function (container,mobile) {
 		}
 	}
 };
-
