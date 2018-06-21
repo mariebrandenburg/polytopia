@@ -230,8 +230,8 @@ let PolytopeViewer = function (container,mobile) {
 
     //--Selection--//
     function selectObject(event) {
-        mouse.x = ( event.clientX / container.clientWidth ) * 2 - 1;
-        mouse.y = -( event.clientY / container.clientHeight ) * 2 + 1;
+        mouse.x = ( (event.pageX - $('#viewer').offset().left) / container.clientWidth ) * 2 - 1;
+		mouse.y = -( (event.pageY - $('#viewer').offset().top) / container.clientHeight ) * 2 + 1; 
         let object = getHoveredObject();
         if(object){
             if(object.active && object.selected && self.selection) {
@@ -254,8 +254,8 @@ let PolytopeViewer = function (container,mobile) {
     //--Hovering--//
 	function onDocumentMouseMove(event) {
 		hasMouseMoved = true;
-        mouse.x = ( event.clientX / container.clientWidth ) * 2 - 1;
-        mouse.y = -( event.clientY / container.clientHeight ) * 2 + 1;
+        mouse.x = ( (event.pageX - $('#viewer').offset().left) / container.clientWidth ) * 2 - 1;
+		mouse.y = -( (event.pageY - $('#viewer').offset().top) / container.clientHeight ) * 2 + 1; 
         updateObjectHover();
 	}
 	
