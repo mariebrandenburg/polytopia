@@ -1,0 +1,119 @@
+<html>
+	<head>
+		<title></title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+        <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+        <script src="src/threejs/QuickHull.js"></script>
+        <script src="src/threejs/ConvexGeometry.js"></script>
+        <script src="src/polytopeViewer.js"></script>
+
+	</head>
+	<body>
+
+<script>
+	AFRAME.registerComponent('insertthreejs', {
+	  schema: {
+		// ... Define schema to pass properties from DOM to this component
+	  },
+
+	  init: function () {
+		var el = this.el;  // Entity.
+		let vertexColor = 0x999999;
+		let edgeColor = 0x999999;
+		let facetColor = 0x156763;
+		
+		let polytopeId = 9;	
+		createVRViewer(polytopeId);
+		
+			
+		function initVRViewer(data) {
+			rawData = Object.assign({},data);
+			let coordinates = createData(data);
+			let polytope = new THREE.Object3D();
+
+			// convert vertices into threejs format
+			let verticesConverted = coordinates.vertices.map(function (element) {
+				return element.position;
+			});
+
+
+			// create objects
+			facetGeometry = new THREE.ConvexGeometry(verticesConverted);
+			let facetMaterial = new THREE.MeshPhongMaterial(
+				{color: facetColor, shininess: 60, vertexColors: THREE.FaceColors, side: THREE.DoubleSide} //don't change color here
+			);
+			facetMesh = new THREE.Mesh(facetGeometry, facetMaterial);
+			polytope.add(facetMesh);
+			
+
+			for(let i=0;i<coordinates.vertices.length;i++) {
+				polytope.add(createVertexMesh(coordinates.vertices[i].position))
+			}
+
+			for(let i=0;i<coordinates.edges.length;i++) {
+				polytope.add(createEdgeMesh(coordinates.edges[i]))
+			}
+			polytope.scale.set(0.25, 0.25, 0.25);
+			el.setObject3D('mesh', polytope);
+			
+			
+			
+			function createVertexMesh(position) {
+				let vertexMaterial = new THREE.MeshPhongMaterial({color: vertexColor, shininess: 40});
+				let vertexGeometry = new THREE.SphereGeometry(0.05, 32, 32);
+				vertexGeometry.geometryType = 'vertex' ;
+				let vertexMesh = new THREE.Mesh(vertexGeometry, vertexMaterial);
+				vertexMesh.position.copy(position);
+				return vertexMesh
+			}
+
+			 function createEdgeMesh(edge) {
+					let line = new THREE.LineCurve(edge.vertices[0].position,edge.vertices[1].position);
+					let edgeGeometry = new THREE.TubeGeometry( line, 20, 0.025, 8, false )
+					edgeGeometry.geometryType = 'edge';
+					let edgeMaterial = new THREE.MeshPhongMaterial({color: edgeColor, shininess: 40});
+					let edgeMesh = new THREE.Mesh(edgeGeometry,edgeMaterial);
+					return edgeMesh;
+				}
+
+		}
+
+
+		function createVRViewer(id,mobile) {
+			$.ajax({
+				url: "src/json/Polyhedron_"+id+".json",
+				dataType: 'json',
+				error: function(jqXHR, textStatus, errorThrown){alert(errorThrown)}  
+			}).done(function ( data ) { initVRViewer(data) } );
+		}
+		
+	  }
+	});
+
+	AFRAME.registerComponent(
+		'rotation-reader',
+		{
+			tick: function () {
+				var rotation = this.el.getAttribute('rotation');
+				var sceneEl = document.querySelector('a-scene');
+				var polytope = sceneEl.querySelector('#poly').object3D;
+				polytope.rotation.x = -THREE.Math.degToRad(rotation.x);
+				polytope.rotation.y = -THREE.Math.degToRad(rotation.y);
+				polytope.rotation.z = -THREE.Math.degToRad(rotation.z);
+			}
+		}
+	);
+</script>
+
+
+<a-scene>
+    <a-sky color="#ECECEC"></a-sky>
+    <a-entity camera look-controls rotation-reader>
+	  <a-entity id="poly" insertthreejs position="0 0 -1" rotation="0 0 0"></a-entity-->	  
+</a-scene>
+	</body>
+</html>
