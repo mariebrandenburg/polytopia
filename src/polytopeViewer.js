@@ -1,6 +1,5 @@
 'use strict'
-let plane;
-
+let snap;
 function createData(data) {
     let i = 0;
     data.vertices = data.vertices.map(function (pos) {
@@ -54,7 +53,7 @@ let PolytopeViewer = function (container,mobile) {
         scene.background = new THREE.Color( backgroundColor );
         camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
 
-        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer = new THREE.WebGLRenderer({antialias: true, preserveDrawingBuffer: true});
         renderer.setSize(container.clientWidth, container.clientHeight);
         container.appendChild(renderer.domElement);
 
@@ -101,7 +100,39 @@ let PolytopeViewer = function (container,mobile) {
 		};
         document.addEventListener('mousedown', selectObject, false);
         window.addEventListener( 'resize', onWindowResize, false );
+        
+        
+        
     }
+    
+    //--snapshot of renderer--//
+	function saveAsImage() {
+		let imgData, imgNode;
+		try {
+			let strMime = "image/jpeg";
+			imgData = renderer.domElement.toDataURL(strMime);
+			saveFile(imgData.replace(strMime, "image/octet-stream"), "screenshot.jpg");
+		} catch (e) {
+			console.log(e);
+			return;
+		}
+    }
+    snap = saveAsImage;
+
+    function saveFile(strData, filename) {
+        let link = document.createElement('a');
+        if (typeof link.download === 'string') {
+            document.body.appendChild(link); //Firefox requires the link to be in the body
+            link.download = filename;
+            link.href = strData;
+            link.click();
+            document.body.removeChild(link); //remove the link when done
+        } else {
+            location.replace(uri);
+        }
+	}
+    
+    
     //--functions to create all the stuff--//
     //create table which groups the 3D-faces by their normal vector
     function makeFacetTable(geometry) {
