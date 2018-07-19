@@ -43,10 +43,13 @@ function resetPolytope() {
 
 function savePolytope() {
 	//convert to JSON format
-	let vertices, edges = [];
 	let facets = [];
 	let colors = [];
 	let ids;
+	v.facets.sort(function(a,b) { return a.abstract.id - b.abstract.id });
+	console.log(v.facets)
+	
+	
 	for (let facet of v.facets) {
 		colors.push(facet.color!==v.facetColor ? facet.color : null)
 		ids = [];
@@ -74,7 +77,6 @@ function initViewer(data, mobile) {
     let viewer = new PolytopeViewer(container,mobile);
     v = viewer;
     viewer.rotate=false;
-
     //add polytope to viewer
     viewer.setPolytope(coordinates.vertices, coordinates.edges, coordinates.facets);
     for(let vertex of viewer.vertices) {
@@ -95,10 +97,6 @@ function initViewer(data, mobile) {
         object.color = pickedColor
         object.defaultColor();
     });
-    
-    
-
-	
 
 }
 

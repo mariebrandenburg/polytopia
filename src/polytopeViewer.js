@@ -1,5 +1,6 @@
 'use strict'
 let snap;
+let facetColor = 0x5b4c88;
 function createData(data) {
     let i = 0;
     data.vertices = data.vertices.map(function (pos) {
@@ -11,16 +12,22 @@ function createData(data) {
         return {id: i++,
 				vertices: [data.vertices[id[0]], data.vertices[id[1]]]}
     });
-    i=0;
-    data.facets = data.facets.map(function (list) {
-        let vertices = [];
-        for (let i=0; i<list.length; i++) {
-            vertices.push(data.vertices[list[i]]);
+
+    let facets = [];
+    let id=0;
+	for (let facet of data.facets) {
+		let vertices = [];
+		for (let i=0; i<facet.length; i++) {
+            vertices.push(data.vertices[facet[i]]);
         }
-        return {id: i++,
-				vertices: vertices, 
-				color: data.colors[i] ? data.colors[i] : 0x5b4c88 }
-    }); 
+		facets.push(
+			{ 	id: id,
+				vertices: vertices,
+				color: data.colors[id] ? data.colors[id] : facetColor
+			})
+		id++;
+	}
+	data.facets = facets;
     return data;
 }; 
 
@@ -45,7 +52,7 @@ let PolytopeViewer = function (container,mobile) {
     let lightsColor = 0xffffff;
     let vertexColor = 0x999999;
     let edgeColor = 0x999999;
-    //self.facetColor = 0x156763; //facet color is defined above in createData
+    self.facetColor = facetColor; //facet color is defined above in createData
 
 
     function init() {
