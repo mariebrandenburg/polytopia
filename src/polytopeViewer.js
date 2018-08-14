@@ -53,6 +53,7 @@ let PolytopeViewer = function (container,mobile) {
     let vertexColor = 0x999999;
     let edgeColor = 0x999999;
     self.facetColor = facetColor; //facet color is defined above in createData
+    self.vertexSize = 0.05;
 
 
     function init() {
@@ -161,7 +162,7 @@ let PolytopeViewer = function (container,mobile) {
 
     function createVertexMesh(position) {
         let vertexMaterial = new THREE.MeshPhongMaterial({color: vertexColor, shininess: 40});
-        let vertexGeometry = new THREE.SphereGeometry(0.05, 32, 32);
+        let vertexGeometry = new THREE.SphereGeometry(self.vertexSize, 32, 32);
         vertexGeometry.geometryType = 'vertex' ;
         let vertexMesh = new THREE.Mesh(vertexGeometry, vertexMaterial);
         vertexMesh.position.copy(position);
@@ -299,16 +300,43 @@ let PolytopeViewer = function (container,mobile) {
 	
 	function updateObjectHover() {
 			let object = getHoveredObject();
+			
+			//this is the version that works for hamilton
+			if (hasObjectChanged(object)) {
+				if (object && object.active) {
+					objectHoverCallback(object)
+					object.highlight();
+				}
+				if (lastHoveredObject && lastHoveredObject.active) {
+					if (lastHoveredObject.selected) {
+						lastHoveredObject.select()
+					}					
+					else if (lastHoveredObject.marked) {
+						lastHoveredObject.mark()
+					}
+					else {
+						lastHoveredObject.defaultColor();
+					}
+				}
+				lastHoveredObject = object;
+			} 
+			
+			/*this is the version that works for the designer (left for bugfixing purposes)
 			if (hasObjectChanged(object)) {
 				if (object && !object.selected && object.active) {
 					objectHoverCallback(object)
 					object.highlight();
 				}
 				if (lastHoveredObject && !lastHoveredObject.selected && lastHoveredObject.active) {
-					lastHoveredObject.defaultColor();
+					if (lastHoveredObject.marked) {
+						lastHoveredObject.mark()
+					}
+					else {
+						lastHoveredObject.defaultColor();
+					}
 				}
 				lastHoveredObject = object;
-			}
+			} */
 		
 			function hasObjectChanged(object) {
 				if (object && lastHoveredObject) {
@@ -379,7 +407,7 @@ let PolytopeViewer = function (container,mobile) {
                     highlight: function() { this.mesh.material.color.setHex(self.highlightColor)},
                     select: function() { this.mesh.material.color.setHex(self.selectionColor) },
                     selected: false,
-                    mark: function() { this.mesh.material.color.setHex(self.markColor) },
+                    mark: function() { this.mesh.material.color.setHex(self.markColor)},
                     marked: false,
                     active: true,
                     color: vertexColor,
