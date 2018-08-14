@@ -5,7 +5,8 @@ function createData(data) {
     let i = 0;
     data.vertices = data.vertices.map(function (pos) {
         return {id: i++, 
-				position : new THREE.Vector3(pos[0],pos[1],pos[2])}
+		//we reflect the polytope about the xy-plane in order to match the orientation with the orientation of the unfoldings
+				position : new THREE.Vector3(pos[0],pos[1],-pos[2])}
     });
     i=0;
     data.edges = data.edges.map(function (id) {
@@ -450,7 +451,7 @@ let PolytopeViewer = function (container,mobile) {
         facetMesh.geometry.colorsNeedUpdate = true;
 
 
-        self.polytope.scale.set(10, 10, 10);
+        self.polytope.scale.set(12, 12, 12);
         scene.add(self.polytope);
         self.facets = facetObjects;
         self.vertices = vertexObjects;
