@@ -1,7 +1,7 @@
 'use strict';
 
 let container;
-let pickedColor = '0xff0000';
+let pickedColor = '0xacfd32';
 let v, rawData;
 let vertexViz=true, edgeViz=true, facetViz = true; 
 
@@ -14,6 +14,8 @@ function updatePickedColor() {
 
 function switchRotation() {
 	v.rotate = !v.rotate
+	//change icon of button
+	$('i.play_pause').toggleClass("fa-play-circle fa-pause-circle");
 }
 
 function vertexVisible() {
@@ -39,6 +41,10 @@ function resetPolytope() {
 	v.setVisible(v.vertices,true);
 	v.setVisible(v.edges,true);
 	v.setVisible(v.facets,true);
+	var el = document.getElementsByClassName("poly-checkbox");
+	for(var i = 0; i < el.length; i++) {
+		el[i].checked = true;
+	}
 }
 
 function savePolytope() {
@@ -66,6 +72,20 @@ function savePolytope() {
 			"colors":	colors 
 		}
 		console.log(json)
+	
+	var url_string = window.location.href; 
+	var url = new URL(url_string);
+	var id = url.searchParams.get("id");
+		
+	$.ajax({
+		type: "POST",
+		url: 'https://www.polytopia.eu/sandbox/viewer/src/change_json.php',
+		dataType: 'json',
+		data: {functionname: 'change', arguments: [colors, id]},
+		success: function(output, textstatus) {
+				  console.log(output.error);
+			  }
+	});
 }
 
 
@@ -76,7 +96,7 @@ function initViewer(data, mobile) {
     container = document.getElementById("viewer");
     let viewer = new PolytopeViewer(container,mobile);
     v = viewer;
-    viewer.rotate=false;
+    viewer.rotate=true;
     //add polytope to viewer
     viewer.setPolytope(coordinates.vertices, coordinates.edges, coordinates.facets);
     for(let vertex of viewer.vertices) {
@@ -103,7 +123,8 @@ function initViewer(data, mobile) {
 
 function createViewer(id,mobile) {
     $.ajax({
-        url: "src/json/Polyhedron_"+id+".json",
+        url: "https://www.polytopia.eu/sandbox/viewer/src/json/poly_"+id+".json",
+        //url: "src/json/Polyhedron_"+id+".json",
         dataType: 'json',
         error: function(jqXHR, textStatus, errorThrown){alert(errorThrown)}  
     }).done(function ( data ) { initViewer(data,mobile) } );

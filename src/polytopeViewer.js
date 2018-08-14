@@ -1,6 +1,6 @@
 'use strict'
 let snap;
-let facetColor = 0x5b4c88;
+let facetColor = 0xacfd32;
 function createData(data) {
     let i = 0;
     data.vertices = data.vertices.map(function (pos) {
