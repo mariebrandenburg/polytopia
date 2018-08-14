@@ -1,5 +1,4 @@
 'use strict'
-let snap;
 let facetColor = 0xacfd32;
 function createData(data) {
     let i = 0;
@@ -125,7 +124,7 @@ let PolytopeViewer = function (container,mobile) {
 			return;
 		}
     }
-    snap = saveAsImage;
+    self.snap = saveAsImage;
 
     function saveFile(strData, filename) {
         let link = document.createElement('a');
