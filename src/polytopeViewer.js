@@ -46,8 +46,8 @@ let PolytopeViewer = function (container,mobile) {
     self.selection = true;
     self.rotate = false;
     self.highlightColor = 0xdddddd;
-    self.selectionColor = 0xff0000;
-    let markColor = 0xe8676a;
+    self.selectionColor = 0x111e6c;
+    self.markColor = 0x75a8ff; //0x6fbbd3;
     let backgroundColor = 0xffffff;
     let lightsColor = 0xffffff;
     let vertexColor = 0x999999;
@@ -107,38 +107,8 @@ let PolytopeViewer = function (container,mobile) {
 			document.addEventListener('mousemove', onDocumentMouseMove, false)
 		};
         document.addEventListener('mousedown', selectObject, false);
-        window.addEventListener( 'resize', onWindowResize, false );
-        
-        
-        
+        window.addEventListener( 'resize', onWindowResize, false );        
     }
-    
-    //--snapshot of renderer--//
-	function saveAsImage() {
-		let imgData, imgNode;
-		try {
-			let strMime = "image/jpeg";
-			imgData = renderer.domElement.toDataURL(strMime);
-			saveFile(imgData.replace(strMime, "image/octet-stream"), "screenshot.jpg");
-		} catch (e) {
-			console.log(e);
-			return;
-		}
-    }
-    self.snap = saveAsImage;
-
-    function saveFile(strData, filename) {
-        let link = document.createElement('a');
-        if (typeof link.download === 'string') {
-            document.body.appendChild(link); //Firefox requires the link to be in the body
-            link.download = filename;
-            link.href = strData;
-            link.click();
-            document.body.removeChild(link); //remove the link when done
-        } else {
-            location.replace(uri);
-        }
-	}
     
     
     //--functions to create all the stuff--//
@@ -300,43 +270,20 @@ let PolytopeViewer = function (container,mobile) {
 	
 	function updateObjectHover() {
 			let object = getHoveredObject();
-			
-			//this is the version that works for hamilton
+
 			if (hasObjectChanged(object)) {
 				if (object && object.active) {
+					if(object && object.active){
+						object.hovered = true;
+					}
 					objectHoverCallback(object)
-					object.highlight();
 				}
 				if (lastHoveredObject && lastHoveredObject.active) {
-					if (lastHoveredObject.selected) {
-						lastHoveredObject.select()
-					}					
-					else if (lastHoveredObject.marked) {
-						lastHoveredObject.mark()
-					}
-					else {
-						lastHoveredObject.defaultColor();
-					}
+					lastHoveredObject.hovered = false;
 				}
 				lastHoveredObject = object;
 			} 
-			
-			/*this is the version that works for the designer (left for bugfixing purposes)
-			if (hasObjectChanged(object)) {
-				if (object && !object.selected && object.active) {
-					objectHoverCallback(object)
-					object.highlight();
-				}
-				if (lastHoveredObject && !lastHoveredObject.selected && lastHoveredObject.active) {
-					if (lastHoveredObject.marked) {
-						lastHoveredObject.mark()
-					}
-					else {
-						lastHoveredObject.defaultColor();
-					}
-				}
-				lastHoveredObject = object;
-			} */
+
 		
 			function hasObjectChanged(object) {
 				if (object && lastHoveredObject) {
@@ -352,8 +299,6 @@ let PolytopeViewer = function (container,mobile) {
     
 
     //--all the big things--//
-
-
     function onWindowResize() {
         camera.aspect = container.clientWidth / container.clientHeight;
         camera.updateProjectionMatrix();
@@ -365,11 +310,24 @@ let PolytopeViewer = function (container,mobile) {
             self.polytope.rotation.x += 0.0015;
             self.polytope.rotation.y += 0.001;
             if (hasMouseMoved) {updateObjectHover()};
-
         }
+        if(self.polytope) {
+			colorObjects();
+		}
         render();
         requestAnimationFrame(animate);
     }
+    self.draw = animate;
+    
+    function colorObjects(){
+		let objects = self.vertices.concat(self.edges, self.facets)
+		for(let object of objects) {
+			if(object.hovered) {object.highlight()}
+			else if(object.selected) {object.select()}
+			else if(object.marked) {object.mark()}
+			else {object.defaultColor()}
+		}
+	}
 
     function render() {
 		renderer.render( scene, camera );
@@ -404,6 +362,7 @@ let PolytopeViewer = function (container,mobile) {
                     mesh: createVertexMesh(vertices[i].position),
                     object_type: 'vertex',
                     defaultColor: function() { this.mesh.material.color.setHex(this.color) },
+                    hovered: false,
                     highlight: function() { this.mesh.material.color.setHex(self.highlightColor)},
                     select: function() { this.mesh.material.color.setHex(self.selectionColor) },
                     selected: false,
@@ -423,6 +382,7 @@ let PolytopeViewer = function (container,mobile) {
                     mesh: createEdgeMesh(edges[i]),
                     object_type: 'edge',
                     defaultColor: function() { this.mesh.material.color.setHex(this.color) },
+                    hovered: false,
                     highlight: function() { this.mesh.material.color.setHex(self.highlightColor)},
                     select: function() { this.mesh.material.color.setHex(self.selectionColor) },
                     selected: false,
@@ -449,6 +409,7 @@ let PolytopeViewer = function (container,mobile) {
                         for (let face of this.mesh) {
                             face.color.setHex(this.color) }
                         facetMesh.geometry.colorsNeedUpdate = true;},
+                    hovered: false,
                     highlight: function() {
                         for (let face of this.mesh) {
                             face.color.setHex(self.highlightColor) }
@@ -487,6 +448,8 @@ let PolytopeViewer = function (container,mobile) {
         
     };
 
+
+
     init();
     animate();
 
@@ -499,6 +462,27 @@ let PolytopeViewer = function (container,mobile) {
         objectClickCallback = callback;
     }
     
+	self.switchRotation = function() {
+		self.rotate = !self.rotate
+		//change icon of button
+		$('i.play_pause').toggleClass("fa-play-circle fa-pause-circle");
+	}
+
+    self.vertexVisible = function() {
+		let isVisible = self.vertices[0].mesh.visible
+		self.setVisible(self.vertices,!isVisible)
+	}	
+	
+	self.edgeVisible = function() {
+		let isVisible = self.edges[0].mesh.visible
+		self.setVisible(self.edges,!isVisible)
+	}
+	
+	self.facetVisible = function() {
+		let isVisible = self.polytope.children[0].visible
+		self.setVisible(self.facets,!isVisible);
+	}
+    
     self.setVisible = function(listOfObjects, bool) {
 		if (listOfObjects[0].object_type == "facet") {
 			self.polytope.children[0].visible = bool
@@ -508,6 +492,55 @@ let PolytopeViewer = function (container,mobile) {
 				object.mesh.visible = bool
 			}
 		}
+	}
+	
+	self.getEdge = function(vertex1,vertex2) {
+		//returns edge incident to two vertices
+		for (let edge of self.edges) {
+			if((edge.abstract.vertices[0]==vertex1.abstract
+				&& edge.abstract.vertices[1]==vertex2.abstract)
+			|| (edge.abstract.vertices[0]==vertex2.abstract
+				&& edge.abstract.vertices[1]==vertex1.abstract)) {
+				return edge;
+			}
+		}
+	}
+	
+	self.isObjectContained = function(object,list) {
+		for(let element of list) {
+			if(object==element) {
+				return true
+			}
+		}
+		return false
+	}
+	
+	
+	//--snapshot of renderer--//
+	function saveAsImage() {
+		let imgData, imgNode;
+		try {
+			let strMime = "image/jpeg";
+			imgData = renderer.domElement.toDataURL(strMime);
+			saveFile(imgData.replace(strMime, "image/octet-stream"), "screenshot.jpg");
+		} catch (e) {
+			console.log(e);
+			return;
+		}
+    }
+    self.snap = saveAsImage;
+
+    function saveFile(strData, filename) {
+        let link = document.createElement('a');
+        if (typeof link.download === 'string') {
+            document.body.appendChild(link); //Firefox requires the link to be in the body
+            link.download = filename;
+            link.href = strData;
+            link.click();
+            document.body.removeChild(link); //remove the link when done
+        } else {
+            location.replace(uri);
+        }
 	}
 };
 

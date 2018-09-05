@@ -3,7 +3,6 @@
 let container;
 let pickedColor = '0xacfd32';
 let v, rawData;
-let vertexViz=true, edgeViz=true, facetViz = true; 
 
 
 function updatePickedColor() {
@@ -12,26 +11,6 @@ function updatePickedColor() {
     });
 }
 
-function switchRotation() {
-	v.rotate = !v.rotate
-	//change icon of button
-	$('i.play_pause').toggleClass("fa-play-circle fa-pause-circle");
-}
-
-function vertexVisible() {
-	vertexViz = !vertexViz;
-	v.setVisible(v.vertices,vertexViz)
-}
-
-function edgeVisible() {
-	edgeViz = !edgeViz;
-	v.setVisible(v.edges,edgeViz)
-}
-
-function facetVisible() {
-	facetViz = !facetViz;
-	v.setVisible(v.facets,facetViz);
-}
 
 function resetPolytope() {
 	for (let face of v.facets) {
@@ -53,7 +32,6 @@ function savePolytope() {
 	let colors = [];
 	let ids;
 	v.facets.sort(function(a,b) { return a.abstract.id - b.abstract.id });
-	console.log(v.facets)
 	
 	
 	for (let facet of v.facets) {
@@ -71,7 +49,6 @@ function savePolytope() {
 			"facets":	facets,
 			"colors":	colors 
 		}
-		console.log(json)
 	
 	var url_string = window.location.href; 
 	var url = new URL(url_string);
@@ -104,7 +81,7 @@ function initViewer(data, mobile) {
 	}
 	
 	for(let edge of viewer.edges) {
-		edge.active = false
+		//edge.active = false
 	}
     viewer.selection = false;
     
@@ -115,7 +92,7 @@ function initViewer(data, mobile) {
     
     viewer.onObjectClick(function(object) {
         object.color = pickedColor
-        object.defaultColor();
+        console.log(pickedColor)
     });
 
 }
@@ -123,8 +100,8 @@ function initViewer(data, mobile) {
 
 function createViewer(id,mobile) {
     $.ajax({
-        url: "https://www.polytopia.eu/sandbox/viewer/src/json/poly_"+id+".json",
-        //url: "src/json/Polyhedron_"+id+".json",
+        //url: "https://www.polytopia.eu/sandbox/viewer/src/json/poly_"+id+".json",
+        url: "src/json/Polyhedron_"+id+".json",
         dataType: 'json',
         error: function(jqXHR, textStatus, errorThrown){alert(errorThrown)}  
     }).done(function ( data ) { initViewer(data,mobile) } );
