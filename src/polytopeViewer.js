@@ -465,7 +465,7 @@ let PolytopeViewer = function (container,mobile) {
 	self.switchRotation = function() {
 		self.rotate = !self.rotate
 		//change icon of button
-		$('i.play_pause').toggleClass("fa-play-circle fa-pause-circle");
+		//$('i.play_pause').toggleClass("fa-play-circle fa-pause-circle");
 	}
 
     self.vertexVisible = function() {

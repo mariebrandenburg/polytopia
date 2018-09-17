@@ -2,7 +2,7 @@
 
 let container;
 let v, rawData;
-
+let selectedEdges;
 
 function initViewer(data, mobile) {
 	rawData = Object.assign({},data);
@@ -25,7 +25,7 @@ function initViewer(data, mobile) {
 
 
 	let selectedVertices = [];
-	let selectedEdges = [];
+	selectedEdges = [];
 	let adjacentEdges = [];
 	let selectedVertex, edge, adjacentVertices
 
@@ -71,7 +71,7 @@ function initViewer(data, mobile) {
 			}
 			else {
 				if (selectedVertices.length > 1) {
-					selectedEdges = deleteIncidentEdge(object, selectedEdges)
+					selectedEdges = deleteIncidentEdges(object, selectedEdges)
 				}
 			}
 		}
@@ -111,6 +111,7 @@ function initViewer(data, mobile) {
 					edge.marked = true;
 				}
 				else {
+					edge.selected = false;
 					edge.marked = false;
 				}
 			}
@@ -149,7 +150,7 @@ function initViewer(data, mobile) {
 			return adjacent;
 		}
 		
-		function deleteIncidentEdge(vertex, selectedEdges) {
+		function deleteIncidentEdges(vertex, selectedEdges) {
 			//returns list of edges without the edges incident to vertex
 			let remaining = []
 			for (let edge of selectedEdges) {

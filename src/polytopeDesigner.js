@@ -11,6 +11,12 @@ function updatePickedColor() {
     });
 }
 
+function switchRotation() {
+		v.rotate = !v.rotate
+		//change icon of button
+		$('i.play_pause').toggleClass("fa-play-circle fa-pause-circle");
+}
+
 
 function resetPolytope() {
 	for (let face of v.facets) {
@@ -81,7 +87,7 @@ function initViewer(data, mobile) {
 	}
 	
 	for(let edge of viewer.edges) {
-		//edge.active = false
+		edge.active = false
 	}
     viewer.selection = false;
     
@@ -92,7 +98,6 @@ function initViewer(data, mobile) {
     
     viewer.onObjectClick(function(object) {
         object.color = pickedColor
-        console.log(pickedColor)
     });
 
 }
@@ -101,7 +106,7 @@ function initViewer(data, mobile) {
 function createViewer(id,mobile) {
     $.ajax({
         //url: "https://www.polytopia.eu/sandbox/viewer/src/json/poly_"+id+".json",
-        url: "src/json/Polyhedron_"+id+".json",
+        url: "src/json/Poly_"+id+".json",
         dataType: 'json',
         error: function(jqXHR, textStatus, errorThrown){alert(errorThrown)}  
     }).done(function ( data ) { initViewer(data,mobile) } );

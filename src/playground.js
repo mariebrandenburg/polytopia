@@ -30,7 +30,7 @@ function initViewer(data, mobile) {
 
 	
 	viewer.onObjectClick(function(object) {
-
+		console.log(object)
 	 });
 
 
@@ -47,7 +47,7 @@ function initViewer(data, mobile) {
 function createViewer(id,mobile) {
     $.ajax({
         //url: "https://www.polytopia.eu/sandbox/viewer/src/json/poly_"+id+".json",
-        url: "src/json/Polyhedron_"+id+".json",
+        url: "src/json/Poly_"+id+".json",
         dataType: 'json',
         error: function(jqXHR, textStatus, errorThrown){alert(errorThrown)}  
     }).done(function ( data ) { initViewer(data,mobile) } );
